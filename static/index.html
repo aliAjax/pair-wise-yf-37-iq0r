@@ -17,17 +17,32 @@
   <p>这是最小演示页面。使用浏览器或 curl 调用 JSON API。</p>
   <p><button onclick="checkHealth()">检查服务状态</button></p>
   <pre id="result">等待操作</pre>
+  <h2>值班页</h2>
+  <p>
+    <input id="owner" placeholder="负责人 ID（留空查看全部）">
+    <button onclick="loadDuty()">查询值班情况</button>
+  </p>
+  <pre id="duty">—</pre>
   <h2>常用接口</h2>
   <pre>GET  /health
 GET  /api/&lt;kind&gt;
 POST /api/&lt;kind&gt;
 GET  /api/entities/&lt;id&gt;
-POST /api/entities/&lt;id&gt;/actions</pre>
+POST /api/entities/&lt;id&gt;/actions
+POST /api/venues/&lt;id&gt;/attendees
+GET  /api/venues/&lt;id&gt;/attendees
+GET  /api/duty?owner_id=&lt;负责人&gt;</pre>
 </main>
 <script>
 async function checkHealth() {
   const response = await fetch('/health');
   document.getElementById('result').textContent = JSON.stringify(await response.json(), null, 2);
+}
+async function loadDuty() {
+  const owner = document.getElementById('owner').value.trim();
+  const url = owner ? '/api/duty?owner_id=' + encodeURIComponent(owner) : '/api/duty';
+  const response = await fetch(url);
+  document.getElementById('duty').textContent = JSON.stringify(await response.json(), null, 2);
 }
 </script>
 </body>

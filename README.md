@@ -24,7 +24,15 @@ python3 app.py --db ./data.db --port 8303
 
 ## 核心对象
 
-- `case`：病例和调查状态；`contact`：接触者随访。
+- `case`：病例和调查状态；`contact`：接触者随访；`venue`：场所暴露活动。
+
+## 场所暴露随访
+
+- 病例确认（`confirmed`/`probable`/`recovered`）后才能登记场所，记录地点、暴露时段和负责人。
+- `POST /api/venues/<id>/attendees` 登记接触者，系统按人生成 `contact` 随访事项，自动关联来源病例、负责人和到期日（默认暴露结束 +14 天，可用`due_at`覆盖）。
+- 同一人重复参加同一活动：只更新联系方式，首次暴露时间保留；随访已完成的不再生成。
+- 病例关闭（`closed`）后停止新增场所和随访事项，旧记录仍可查询。
+- `GET /api/duty?owner_id=<负责人>` 值班页：按负责人汇总各场所未完成数和逾期名单。
 
 ## 主要接口
 
@@ -33,6 +41,9 @@ python3 app.py --db ./data.db --port 8303
 - `POST /api/<kind>`：创建对象；请求体为JSON。
 - `GET /api/entities/<id>`：读取对象当前版本。
 - `POST /api/entities/<id>/actions`：提交`{"action":"动作名","data":{...},"expected_version":数字}`。
+- `POST /api/venues/<id>/attendees`：登记场所接触者，幂等生成随访事项。
+- `GET /api/venues/<id>/attendees`：查看场所接触者名单。
+- `GET /api/duty`：值班页汇总，可用`?owner_id=`按负责人筛选。
 - `GET /api/audit`：读取审计记录。
 
 请求身份通过`X-User-Id`和`X-Role`请求头传入。创建和动作的可执行角色由规则引擎控制。
