@@ -83,8 +83,17 @@ def create_handler(service, rules, static_dir):
                     index = os.path.join(static_dir, "index.html")
                     with open(index, "r", encoding="utf-8") as handle:
                         return self._send_html(200, handle.read())
+                if parsed.path == "/duty":
+                    page = os.path.join(static_dir, "duty.html")
+                    with open(page, "r", encoding="utf-8") as handle:
+                        return self._send_html(200, handle.read())
                 if parts == ["api", "audit"]:
                     return self._send(200, {"items": service.audit_log()})
+                if parts == ["api", "duty"]:
+                    query = parse_qs(parsed.query)
+                    owner = query.get("owner", [None])[0]
+                    as_of = query.get("as_of", [None])[0]
+                    return self._send(200, service.duty_board(owner=owner, as_of=as_of))
                 if len(parts) == 3 and parts[:2] == ["api", "entities"]:
                     return self._send(200, service.get(parts[2]))
                 if len(parts) >= 2 and parts[0] == "api":

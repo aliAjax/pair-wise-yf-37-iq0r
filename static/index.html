@@ -16,13 +16,25 @@
   <h1>传染病暴发调查与接触网络</h1>
   <p>这是最小演示页面。使用浏览器或 curl 调用 JSON API。</p>
   <p><button onclick="checkHealth()">检查服务状态</button></p>
+  <p><a href="/duty">打开随访值班看板（按负责人筛选、场所未完成数与逾期名单）</a></p>
   <pre id="result">等待操作</pre>
   <h2>常用接口</h2>
   <pre>GET  /health
-GET  /api/&lt;kind&gt;
+GET  /api/&lt;kind&gt;                       # case / contact / exposure
 POST /api/&lt;kind&gt;
 GET  /api/entities/&lt;id&gt;
-POST /api/entities/&lt;id&gt;/actions</pre>
+POST /api/entities/&lt;id&gt;/actions
+GET  /api/duty?owner=&lt;负责人&gt;          # 值班看板
+
+病例确认后登记场所暴露活动（按人建随访事项）：
+POST /api/entities/&lt;case_id&gt;/actions
+{"action": "register_exposure", "data": {
+  "venue": "场所名", "window_start": "2026-03-01T18:00",
+  "window_end": "2026-03-01T22:00", "due_at": "2026-03-15",
+  "owner": "investigator-7",
+  "contacts": [{"person_id": "P-2", "phone": "138...",
+                "exposure_start": "2026-03-01T19:00"}]
+}}</pre>
 </main>
 <script>
 async function checkHealth() {
